@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+    environment {
+        VITE_BUILD_DIR = 'dist'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                bat '''
+                echo Running on AGENT: %COMPUTERNAME%
+                if exist out rmdir /s /q build
+                npm ci
+                '''
+            }
+        }
+        stage('Build & Test') {
+            steps {
+                script {
+                    bat 'npm run build'
+                }
+            }
+        }
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: "${VITE_BUILD_DIR}/**", fingerprint: true
+                echo "Vite build artifacts saved from ${VITE_BUILD_DIR}."
+            }
+        }
+        stage('Deploy (Example)') {
+            steps {
+                script {
+                    bat '''
+                    git config --global user.name "Aravind Chandra"
+                    git config --global user.email "sangammagariaravind123@gmail.com"
+                    npm run deploy
+                    '''
+                }
+            }
+            post {
+                always {
+                    cleanWs()
+                }
+            }
+        }
+    }
+}
+//
