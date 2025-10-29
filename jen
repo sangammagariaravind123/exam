@@ -12,7 +12,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat '''
-                echo Running on AGENT: %COMPUTERNAME%
+                echo Running on : %COMPUTERNAME%
                 if exist out rmdir /s /q build
                 npm ci
                 '''
